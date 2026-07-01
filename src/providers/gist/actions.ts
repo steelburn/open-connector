@@ -9,7 +9,6 @@ export const gistRequiredScopes: string[] = ["gist"];
 export const gistOAuthScopes: string[] = ["read:user", ...gistRequiredScopes];
 
 const rawObjectSchema = s.looseObject("A GitHub API object.");
-const nonEmptyString = s.string({ minLength: 1 });
 const nullableString = s.nullable(s.string());
 const nullableNumber = s.nullable(s.integer());
 const nullableBoolean = s.nullable(s.boolean());
@@ -146,10 +145,6 @@ const listGistsInputSchema = s.object(
   },
   { optional: ["perPage", "page", "since"] },
 );
-
-const gistIdInputSchema = s.object("The input payload for one gist.", {
-  gistId: nonEmptyString,
-});
 
 const gistIdWithOptionalMediaTypeSchema = s.object(
   "The input payload for fetching a gist.",

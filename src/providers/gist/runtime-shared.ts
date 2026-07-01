@@ -1,4 +1,3 @@
-import { optionalInteger, optionalString } from "../../core/cast.ts";
 import { ProviderRequestError, providerUserAgent } from "../provider-runtime.ts";
 
 export const gistApiBaseUrl = "https://api.github.com";
