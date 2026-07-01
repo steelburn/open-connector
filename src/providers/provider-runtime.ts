@@ -68,6 +68,14 @@ export interface BearerProviderContext {
   signal?: AbortSignal;
 }
 
+export interface ProviderTransitFile {
+  fileId: string;
+  downloadUrl: string;
+  sizeBytes: number;
+  name: string;
+  mimeType: string;
+}
+
 /**
  * Error raised for provider API responses and mapped to stable execution errors.
  */
@@ -103,6 +111,59 @@ export async function readProviderJson<T>(response: Response, source: string): P
 
   const text = await response.text().catch(() => "");
   throw new ProviderRequestError(response.status, text || `${source} request failed`);
+}
+
+/**
+ * Store a provider-hosted file in the local transit file service when enabled.
+ */
+export async function uploadProviderUrlToTransitFile(
+  input: {
+    url: string;
+    name: string;
+    source: string;
+  },
+  context: Pick<ApiKeyProviderContext, "fetcher" | "transitFiles" | "signal">,
+): Promise<ProviderTransitFile | null> {
+  if (!context.transitFiles) {
+    return null;
+  }
+
+  let response: Response;
+  try {
+    response = await context.fetcher(input.url, {
+      headers: {
+        accept: "*/*",
+        "user-agent": providerUserAgent,
+      },
+      signal: context.signal,
+    });
+  } catch (error) {
+    throw new ProviderRequestError(
+      502,
+      error instanceof Error
+        ? `${input.source} transit download failed: ${error.message}`
+        : `${input.source} transit download failed`,
+    );
+  }
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new ProviderRequestError(
+      response.status >= 500 ? 502 : response.status,
+      text || `${input.source} transit download failed with HTTP ${response.status}`,
+    );
+  }
+
+  const mimeType = response.headers.get("content-type") ?? "application/octet-stream";
+  const upload = await context.transitFiles.create(
+    new File([await response.arrayBuffer()], input.name, { type: mimeType }),
+  );
+  return {
+    fileId: upload.fileId,
+    downloadUrl: upload.downloadUrl,
+    sizeBytes: upload.sizeBytes,
+    name: input.name,
+    mimeType,
+  };
 }
 
 /**

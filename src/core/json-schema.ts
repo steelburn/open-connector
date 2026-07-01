@@ -135,6 +135,18 @@ export const jsonSchema = {
     return this.nullable(this.string({ ...options, description }));
   },
 
+  nullableInteger(description: string, options: Omit<NumberOptions, "description"> = {}): JsonSchema {
+    return this.nullable(this.integer({ ...options, description }));
+  },
+
+  nullableNumber(description: string, options: Omit<NumberOptions, "description"> = {}): JsonSchema {
+    return this.nullable(this.number({ ...options, description }));
+  },
+
+  nullableBoolean(description: string, options: Omit<JsonSchemaOptions, "description"> = {}): JsonSchema {
+    return this.nullable(this.boolean({ ...options, description }));
+  },
+
   dateTime(description: string): JsonSchema {
     return this.string({ format: "date-time", description });
   },
@@ -173,6 +185,14 @@ export const jsonSchema = {
     if (options.maximum != null) schema.maximum = options.maximum;
     if (options.exclusiveMinimum != null) schema.exclusiveMinimum = options.exclusiveMinimum;
     return withOptions(schema, options);
+  },
+
+  positiveInteger(description: string, options: Omit<NumberOptions, "description" | "minimum"> = {}): JsonSchema {
+    return this.integer({ ...options, minimum: 1, description });
+  },
+
+  nonNegativeInteger(description: string, options: Omit<NumberOptions, "description" | "minimum"> = {}): JsonSchema {
+    return this.integer({ ...options, minimum: 0, description });
   },
 
   number(
@@ -229,12 +249,38 @@ export const jsonSchema = {
     return withOptions({ $ref: ref }, options);
   },
 
-  record(values: JsonSchema | boolean, options: JsonSchemaOptions = {}): JsonSchema {
+  record(
+    valuesOrDescription: JsonSchema | boolean | string,
+    optionsOrValues: JsonSchemaOptions | JsonSchema | boolean = {},
+  ): JsonSchema {
+    const values =
+      typeof valuesOrDescription === "string" ? (optionsOrValues as JsonSchema | boolean) : valuesOrDescription;
+    const options =
+      typeof valuesOrDescription === "string"
+        ? { description: valuesOrDescription }
+        : (optionsOrValues as JsonSchemaOptions);
     return withOptions({ type: "object", additionalProperties: values }, options);
   },
 
-  looseObject(properties: Record<string, JsonSchema> = {}, options: JsonSchemaOptions = {}): JsonSchema {
-    return this.object(properties, { ...options, additionalProperties: true });
+  looseObject(
+    propertiesOrDescription: Record<string, JsonSchema> | string = {},
+    optionsOrProperties: JsonSchemaOptions | Record<string, JsonSchema> = {},
+    maybeOptions: JsonSchemaOptions = {},
+  ): JsonSchema {
+    const properties =
+      typeof propertiesOrDescription === "string"
+        ? isJsonSchemaOptions(optionsOrProperties)
+          ? {}
+          : optionsOrProperties
+        : propertiesOrDescription;
+    const resolvedOptions =
+      typeof propertiesOrDescription === "string"
+        ? {
+            ...(isJsonSchemaOptions(optionsOrProperties) ? optionsOrProperties : maybeOptions),
+            description: propertiesOrDescription,
+          }
+        : (optionsOrProperties as JsonSchemaOptions);
+    return this.object(properties, { ...resolvedOptions, additionalProperties: true });
   },
 
   unknownObject(description: string): JsonSchema {
@@ -289,4 +335,8 @@ function withOptions(schema: JsonSchema, options: JsonSchemaOptions): JsonSchema
   if (options.default !== undefined) schema.default = options.default;
   if (options.format) schema.format = options.format;
   return schema;
+}
+
+function isJsonSchemaOptions(value: JsonSchemaOptions | Record<string, JsonSchema>): value is JsonSchemaOptions {
+  return "description" in value || "default" in value || "format" in value;
 }

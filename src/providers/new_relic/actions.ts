@@ -11,8 +11,6 @@ const stringOrNumber = s.union(
   [s.string({ description: "A string value." }), s.number({ description: "A numeric value." })],
   { description: "A string or numeric value returned by New Relic." },
 );
-const positiveInteger = (description: string): JsonSchema => s.integer({ minimum: 1, description });
-const nonEmptyString = (description: string): JsonSchema => s.string({ minLength: 1, description });
 const graphqlErrors = s.nullable(s.array(looseObject, { description: "New Relic GraphQL mutation errors." }));
 const dashboardPages = s.array(looseObject, { minItems: 1, description: "Dashboard page definitions." });
 
@@ -75,8 +73,8 @@ export const newRelicActions: ActionDefinition[] = [
     "execute_nrql_query",
     "Execute an NRQL query against a specific New Relic account and return the query results and metadata.",
     {
-      accountId: positiveInteger("The account ID to query."),
-      query: nonEmptyString("The NRQL query string."),
+      accountId: s.positiveInteger("The account ID to query."),
+      query: s.nonEmptyString("The NRQL query string."),
       timeout: s.integer({ minimum: 1, maximum: 600, description: "The query timeout in seconds." }),
       asyncExecution: s.boolean({ description: "Whether to request asynchronous execution." }),
     },
@@ -94,7 +92,7 @@ export const newRelicActions: ActionDefinition[] = [
     "List New Relic alert policies with optional name, incident preference, and pagination filters using the REST alerts API.",
     {
       name: s.string({ description: "The optional partial policy name filter." }),
-      page: positiveInteger("The 1-based result page to fetch."),
+      page: s.positiveInteger("The 1-based result page to fetch."),
       incidentPreference: s.stringEnum(["PER_POLICY", "PER_CONDITION", "PER_CONDITION_AND_TARGET"], {
         description: "The incident preference filter.",
       }),
@@ -106,7 +104,7 @@ export const newRelicActions: ActionDefinition[] = [
     "create_alert_policy",
     "Create a New Relic alert policy using the REST alerts API.",
     {
-      name: nonEmptyString("The alert policy name."),
+      name: s.nonEmptyString("The alert policy name."),
       incidentPreference: s.stringEnum(["PER_POLICY", "PER_CONDITION", "PER_CONDITION_AND_TARGET"], {
         description: "The incident preference for the new policy.",
       }),
@@ -140,8 +138,8 @@ export const newRelicActions: ActionDefinition[] = [
     "list_nrql_conditions",
     "List NRQL alert conditions for a specific alert policy using the REST alerts API.",
     {
-      policyId: positiveInteger("The alert policy ID."),
-      page: positiveInteger("The 1-based result page to fetch."),
+      policyId: s.positiveInteger("The alert policy ID."),
+      page: s.positiveInteger("The 1-based result page to fetch."),
     },
     ["policyId"],
     {
@@ -152,7 +150,7 @@ export const newRelicActions: ActionDefinition[] = [
     "create_nrql_condition",
     "Create a static or baseline NRQL alert condition for a policy using the REST alerts API.",
     {
-      policyId: positiveInteger("The alert policy ID."),
+      policyId: s.positiveInteger("The alert policy ID."),
       nrqlCondition: looseObject,
     },
     ["policyId", "nrqlCondition"],
@@ -188,7 +186,7 @@ export const newRelicActions: ActionDefinition[] = [
     "get_dashboard_entity",
     "Read a New Relic dashboard entity, including its pages and widgets, by GUID.",
     {
-      guid: nonEmptyString("The dashboard entity GUID."),
+      guid: s.nonEmptyString("The dashboard entity GUID."),
     },
     ["guid"],
     { dashboard: looseObject },
@@ -197,8 +195,8 @@ export const newRelicActions: ActionDefinition[] = [
     "create_dashboard",
     "Create a New Relic dashboard with pages and widgets using NerdGraph.",
     {
-      accountId: positiveInteger("The account ID that will own the dashboard."),
-      name: nonEmptyString("The dashboard name."),
+      accountId: s.positiveInteger("The account ID that will own the dashboard."),
+      name: s.nonEmptyString("The dashboard name."),
       description: s.string({ description: "The optional dashboard description." }),
       permissions: s.stringEnum(["PRIVATE", "PUBLIC_READ_ONLY", "PUBLIC_READ_WRITE"], {
         description: "The dashboard permission setting.",
@@ -215,8 +213,8 @@ export const newRelicActions: ActionDefinition[] = [
     "update_dashboard",
     "Update a New Relic dashboard by GUID, replacing the dashboard configuration with the supplied pages and widgets.",
     {
-      guid: nonEmptyString("The dashboard entity GUID."),
-      name: nonEmptyString("The updated dashboard name."),
+      guid: s.nonEmptyString("The dashboard entity GUID."),
+      name: s.nonEmptyString("The updated dashboard name."),
       description: s.string({ description: "The updated dashboard description." }),
       permissions: s.stringEnum(["PRIVATE", "PUBLIC_READ_ONLY", "PUBLIC_READ_WRITE"], {
         description: "The updated dashboard permission setting.",
@@ -233,7 +231,7 @@ export const newRelicActions: ActionDefinition[] = [
     "delete_dashboard",
     "Delete a New Relic dashboard by its entity GUID.",
     {
-      guid: nonEmptyString("The dashboard entity GUID."),
+      guid: s.nonEmptyString("The dashboard entity GUID."),
     },
     ["guid"],
     {
@@ -245,7 +243,7 @@ export const newRelicActions: ActionDefinition[] = [
     "create_dashboard_snapshot_url",
     "Generate a snapshot URL for a New Relic dashboard page GUID.",
     {
-      guid: nonEmptyString("The dashboard page GUID."),
+      guid: s.nonEmptyString("The dashboard page GUID."),
     },
     ["guid"],
     {
@@ -282,11 +280,11 @@ export const newRelicActions: ActionDefinition[] = [
     "create_synthetics_simple_monitor",
     "Create a New Relic ping monitor by using the syntheticsCreateSimpleMonitor mutation.",
     {
-      accountId: positiveInteger("The account ID that will own the monitor."),
-      name: nonEmptyString("The monitor display name."),
+      accountId: s.positiveInteger("The account ID that will own the monitor."),
+      name: s.nonEmptyString("The monitor display name."),
       uri: s.url("The URL or endpoint to monitor."),
-      period: nonEmptyString("The monitor execution period."),
-      status: nonEmptyString("The monitor status."),
+      period: s.nonEmptyString("The monitor execution period."),
+      status: s.nonEmptyString("The monitor status."),
       locations: looseObject,
       advancedOptions: looseObject,
       apdexTarget: s.number({ description: "The ping monitor Apdex target in seconds." }),
@@ -301,7 +299,7 @@ export const newRelicActions: ActionDefinition[] = [
     "update_synthetics_simple_monitor",
     "Update a New Relic ping monitor by GUID using the syntheticsUpdateSimpleMonitor mutation.",
     {
-      guid: nonEmptyString("The synthetic monitor GUID."),
+      guid: s.nonEmptyString("The synthetic monitor GUID."),
       monitor: looseObject,
     },
     ["guid", "monitor"],
@@ -313,7 +311,7 @@ export const newRelicActions: ActionDefinition[] = [
     "delete_synthetics_monitor",
     "Delete a synthetic monitor by GUID using the syntheticsDeleteMonitor mutation.",
     {
-      guid: nonEmptyString("The synthetic monitor GUID."),
+      guid: s.nonEmptyString("The synthetic monitor GUID."),
     },
     ["guid"],
     {
@@ -338,7 +336,7 @@ export const newRelicActions: ActionDefinition[] = [
     "get_secure_credential",
     "Get a synthetic secure credential by key using NerdGraph entity search metadata only.",
     {
-      key: nonEmptyString("The secure credential key."),
+      key: s.nonEmptyString("The secure credential key."),
     },
     ["key"],
     {
@@ -349,7 +347,7 @@ export const newRelicActions: ActionDefinition[] = [
     "create_secure_credential",
     "Create a New Relic synthetic secure credential using NerdGraph.",
     {
-      accountId: positiveInteger("The account ID that will own the secure credential."),
+      accountId: s.positiveInteger("The account ID that will own the secure credential."),
       key: s.string({ minLength: 1, maxLength: 64, description: "The secure credential key." }),
       value: s.string({ minLength: 1, maxLength: 10000, description: "The secure credential value." }),
       description: s.string({ description: "The optional secure credential description." }),
@@ -364,7 +362,7 @@ export const newRelicActions: ActionDefinition[] = [
     "update_secure_credential",
     "Update a New Relic synthetic secure credential value or description using NerdGraph.",
     {
-      accountId: positiveInteger("The account ID that owns the secure credential."),
+      accountId: s.positiveInteger("The account ID that owns the secure credential."),
       key: s.string({ minLength: 1, maxLength: 64, description: "The secure credential key." }),
       value: s.string({ minLength: 1, maxLength: 10000, description: "The updated secure credential value." }),
       description: s.string({ description: "The updated secure credential description." }),
@@ -381,7 +379,7 @@ export const newRelicActions: ActionDefinition[] = [
     "delete_secure_credential",
     "Delete a New Relic synthetic secure credential using NerdGraph.",
     {
-      accountId: positiveInteger("The account ID that owns the secure credential."),
+      accountId: s.positiveInteger("The account ID that owns the secure credential."),
       key: s.string({ minLength: 1, maxLength: 64, description: "The secure credential key." }),
     },
     ["accountId", "key"],
@@ -395,8 +393,8 @@ export const newRelicActions: ActionDefinition[] = [
     "create_deployment_marker",
     "Create a New Relic change-tracking deployment marker for an entity GUID using NerdGraph.",
     {
-      entityGuid: nonEmptyString("The target entity GUID."),
-      version: nonEmptyString("The deployment version identifier."),
+      entityGuid: s.nonEmptyString("The target entity GUID."),
+      version: s.nonEmptyString("The deployment version identifier."),
       user: s.string({ description: "The deployment user or service principal." }),
       commit: s.string({ description: "The deployment commit SHA or revision." }),
       groupId: s.string({ description: "The logical deployment group identifier." }),
@@ -415,8 +413,8 @@ export const newRelicActions: ActionDefinition[] = [
     "list_deployments",
     "List deployment markers for a legacy APM application by using the REST v2 deployments API.",
     {
-      applicationId: positiveInteger("The APM application ID."),
-      page: positiveInteger("The 1-based result page to fetch."),
+      applicationId: s.positiveInteger("The APM application ID."),
+      page: s.positiveInteger("The 1-based result page to fetch."),
     },
     ["applicationId"],
     {

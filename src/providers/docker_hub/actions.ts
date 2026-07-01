@@ -5,9 +5,6 @@ import { defineProviderAction } from "../../core/provider-definition.ts";
 
 const service = "docker_hub";
 
-const nonEmptyString = (description: string): JsonSchema => s.nonEmptyString(description);
-const nullableInteger = (description: string): JsonSchema => s.nullable(s.integer({ description }));
-const nullableBoolean = (description: string): JsonSchema => s.nullable(s.boolean({ description }));
 const stringArray = (description: string): JsonSchema => s.stringArray(description);
 const page = s.integer({ minimum: 1, description: "The page number to retrieve." });
 const pageSize = s.integer({ minimum: 1, maximum: 100, description: "The number of results to return per page." });
@@ -52,7 +49,7 @@ const repositorySummary = s.object(
     mediaTypes: stringArray("The media types supported by the repository."),
     contentTypes: stringArray("The content types supported by the repository."),
     categories: s.array(category, { description: "The categories assigned to the repository." }),
-    storageSize: nullableInteger("The repository storage size in bytes, when available."),
+    storageSize: s.nullableInteger("The repository storage size in bytes, when available."),
   },
   { description: "A Docker Hub repository summary." },
 );
@@ -61,9 +58,9 @@ const repositoryDetail = s.object(
     ...(repositorySummary.properties as Record<string, JsonSchema>),
     user: s.nullableString("The repository owner username, when available."),
     hubUser: s.nullableString("The Docker Hub user associated with the repository, when available."),
-    collaboratorCount: nullableInteger("The number of collaborators on the repository, when available."),
+    collaboratorCount: s.nullableInteger("The number of collaborators on the repository, when available."),
     fullDescription: s.nullableString("The full repository description, when available."),
-    hasStarred: nullableBoolean("Whether the current user has starred the repository, when available."),
+    hasStarred: s.nullableBoolean("Whether the current user has starred the repository, when available."),
     permissions: s.nullable(permissions),
     immutableTagsSettings: s.nullable(immutableTagsSettings),
     source: s.nullableString("The repository source metadata, when available."),
@@ -73,7 +70,7 @@ const repositoryDetail = s.object(
 const layer = s.object(
   {
     digest: s.nullableString("The image layer digest, when available."),
-    size: nullableInteger("The image layer size in bytes, when available."),
+    size: s.nullableInteger("The image layer size in bytes, when available."),
     instruction: s.nullableString("The Dockerfile instruction associated with the layer, when available."),
   },
   { description: "A Docker image layer." },
@@ -88,7 +85,7 @@ const image = s.object(
     os: s.nullableString("The operating system for the image variant, when available."),
     osFeatures: s.nullableString("The operating system features reported for the image variant, when available."),
     osVersion: s.nullableString("The operating system version for the image variant, when available."),
-    size: nullableInteger("The image size in bytes, when available."),
+    size: s.nullableInteger("The image size in bytes, when available."),
     status: s.nullableString("The image status returned by Docker Hub, when available."),
     lastPulled: s.nullableString("The ISO 8601 timestamp when the image variant was last pulled."),
     lastPushed: s.nullableString("The ISO 8601 timestamp when the image variant was last pushed."),
@@ -97,14 +94,14 @@ const image = s.object(
 );
 const tag = s.object(
   {
-    id: nullableInteger("The numeric tag identifier, when available."),
+    id: s.nullableInteger("The numeric tag identifier, when available."),
     name: s.string({ description: "The repository tag name." }),
-    creator: nullableInteger("The user ID that originally created the tag."),
+    creator: s.nullableInteger("The user ID that originally created the tag."),
     lastUpdated: s.nullableString("The ISO 8601 timestamp when the tag was last updated."),
-    lastUpdater: nullableInteger("The user ID that last updated the tag."),
+    lastUpdater: s.nullableInteger("The user ID that last updated the tag."),
     lastUpdaterUsername: s.nullableString("The Docker Hub username that last updated the tag."),
-    repository: nullableInteger("The numeric repository identifier."),
-    fullSize: nullableInteger("The compressed tag size in bytes."),
+    repository: s.nullableInteger("The numeric repository identifier."),
+    fullSize: s.nullableInteger("The compressed tag size in bytes."),
     status: s.nullableString("The current Docker Hub tag status."),
     tagLastPulled: s.nullableString("The ISO 8601 timestamp when the tag was last pulled."),
     tagLastPushed: s.nullableString("The ISO 8601 timestamp when the tag was last pushed."),
@@ -121,7 +118,7 @@ const orgMember = s.object(
     type: s.nullableString("The Docker Hub member type, when available."),
     role: s.nullableString("The organization role assigned to the member."),
     groups: stringArray("The teams that include the member."),
-    isGuest: nullableBoolean("Whether the member is marked as a guest in the organization."),
+    isGuest: s.nullableBoolean("Whether the member is marked as a guest in the organization."),
     dateJoined: s.nullableString("The ISO 8601 timestamp when the member joined the organization."),
     lastLoggedInAt: s.nullableString("The ISO 8601 timestamp when the member last logged in, when visible."),
     lastSeenAt: s.nullableString("The ISO 8601 timestamp when the member was last seen, when visible."),
@@ -131,11 +128,11 @@ const orgMember = s.object(
 );
 const team = s.object(
   {
-    id: nullableInteger("The numeric team identifier, when available."),
+    id: s.nullableInteger("The numeric team identifier, when available."),
     uuid: s.nullableString("The stable UUID of the team, when available."),
     name: s.nullableString("The team name."),
     description: s.nullableString("The team description, when available."),
-    memberCount: nullableInteger("The number of members in the team."),
+    memberCount: s.nullableInteger("The number of members in the team."),
   },
   { description: "A Docker Hub organization team." },
 );
@@ -166,7 +163,7 @@ const orgAccessToken = s.object(
     id: s.nullableString("The organization access token identifier."),
     label: s.nullableString("The organization access token label."),
     createdBy: s.nullableString("The username that created the token, when available."),
-    isActive: nullableBoolean("Whether the organization access token is active."),
+    isActive: s.nullableBoolean("Whether the organization access token is active."),
     createdAt: s.nullableString("The ISO 8601 timestamp when the token was created."),
     expiresAt: s.nullableString("The ISO 8601 timestamp when the token expires, when available."),
     lastUsedAt: s.nullableString("The ISO 8601 timestamp when the token was last used, when available."),
@@ -215,10 +212,10 @@ export const dockerHubActions: ActionDefinition[] = [
     "list_repositories",
     "List Docker Hub repositories in a namespace with optional name filtering and ordering.",
     {
-      namespace: nonEmptyString("The namespace that owns the repositories."),
+      namespace: s.nonEmptyString("The namespace that owns the repositories."),
       page,
       pageSize,
-      name: nonEmptyString("An optional partial repository name filter."),
+      name: s.nonEmptyString("An optional partial repository name filter."),
       ordering: s.stringEnum(["name", "-name", "last_updated", "-last_updated", "pull_count", "-pull_count"], {
         description: "The field and direction used to order repositories.",
       }),
@@ -237,7 +234,7 @@ export const dockerHubActions: ActionDefinition[] = [
     "create_repository",
     "Create a Docker Hub repository inside a namespace.",
     {
-      namespace: nonEmptyString("The namespace where the repository should be created."),
+      namespace: s.nonEmptyString("The namespace where the repository should be created."),
       name: s.string({ minLength: 2, maxLength: 255, description: "The repository name to create." }),
       description: s.string({ maxLength: 100, description: "The short repository description." }),
       fullDescription: s.string({ maxLength: 25000, description: "The detailed repository description." }),
@@ -250,7 +247,7 @@ export const dockerHubActions: ActionDefinition[] = [
   action(
     "get_tag",
     "Get metadata and image variants for a specific Docker Hub repository tag.",
-    { ...repositoryInput(), tag: nonEmptyString("The tag name to retrieve.") },
+    { ...repositoryInput(), tag: s.nonEmptyString("The tag name to retrieve.") },
     ["namespace", "repository", "tag"],
     s.actionOutput({ tag }, "The output payload for retrieving a Docker Hub repository tag."),
   ),
@@ -259,7 +256,7 @@ export const dockerHubActions: ActionDefinition[] = [
     "Find a Docker Hub image variant by digest by scanning the repository's published tags.",
     {
       ...repositoryInput(),
-      digest: nonEmptyString("The image manifest digest to look up."),
+      digest: s.nonEmptyString("The image manifest digest to look up."),
       pageSize,
       maxPages: s.integer({ minimum: 1, maximum: 100, description: "The maximum number of tag pages to scan." }),
     },
@@ -270,7 +267,7 @@ export const dockerHubActions: ActionDefinition[] = [
     "list_org_members",
     "List Docker Hub organization members with optional filtering and pagination.",
     {
-      orgName: nonEmptyString("The Docker Hub organization name."),
+      orgName: s.nonEmptyString("The Docker Hub organization name."),
       search: s.string({ description: "An optional member search term." }),
       page,
       pageSize,
@@ -285,9 +282,9 @@ export const dockerHubActions: ActionDefinition[] = [
     "add_org_member",
     "Invite a Docker ID or email address to join a Docker Hub organization.",
     {
-      orgName: nonEmptyString("The Docker Hub organization name."),
-      invitee: nonEmptyString("The Docker ID or email address to invite."),
-      teamName: nonEmptyString("The optional team to attach to the invite."),
+      orgName: s.nonEmptyString("The Docker Hub organization name."),
+      invitee: s.nonEmptyString("The Docker ID or email address to invite."),
+      teamName: s.nonEmptyString("The optional team to attach to the invite."),
       role: s.string({ description: "The optional organization role to assign to the invite." }),
       dryRun: s.boolean({ description: "Whether to validate the invite without creating it." }),
     },
@@ -305,8 +302,8 @@ export const dockerHubActions: ActionDefinition[] = [
     "remove_org_member",
     "Remove a member from a Docker Hub organization.",
     {
-      orgName: nonEmptyString("The Docker Hub organization name."),
-      username: nonEmptyString("The Docker Hub username to remove."),
+      orgName: s.nonEmptyString("The Docker Hub organization name."),
+      username: s.nonEmptyString("The Docker Hub username to remove."),
     },
     ["orgName", "username"],
     booleanOutput("removed", "Whether the member removal request completed."),
@@ -315,7 +312,7 @@ export const dockerHubActions: ActionDefinition[] = [
     "list_org_access_tokens",
     "List Docker Hub organization access tokens for an organization.",
     {
-      orgName: nonEmptyString("The Docker Hub organization name."),
+      orgName: s.nonEmptyString("The Docker Hub organization name."),
       page,
       pageSize,
     },
@@ -337,11 +334,11 @@ export const dockerHubActions: ActionDefinition[] = [
     "list_teams",
     "List Docker Hub teams for an organization.",
     {
-      orgName: nonEmptyString("The Docker Hub organization name."),
+      orgName: s.nonEmptyString("The Docker Hub organization name."),
       page,
       pageSize,
-      username: nonEmptyString("An optional username to filter teams by membership."),
-      search: nonEmptyString("An optional team search term."),
+      username: s.nonEmptyString("An optional username to filter teams by membership."),
+      search: s.nonEmptyString("An optional team search term."),
     },
     ["orgName"],
     pageOutput(team, "A paginated Docker Hub team list."),
@@ -367,7 +364,7 @@ export const dockerHubActions: ActionDefinition[] = [
       ...teamInput(),
       page,
       pageSize,
-      search: nonEmptyString("An optional member search term."),
+      search: s.nonEmptyString("An optional member search term."),
     },
     ["orgName", "teamName"],
     pageOutput(teamMember, "A paginated Docker Hub team member list."),
@@ -377,7 +374,7 @@ export const dockerHubActions: ActionDefinition[] = [
     "Remove a user from a Docker Hub team within an organization.",
     {
       ...teamInput(),
-      username: nonEmptyString("The Docker Hub username to remove from the team."),
+      username: s.nonEmptyString("The Docker Hub username to remove from the team."),
     },
     ["orgName", "teamName", "username"],
     booleanOutput("removed", "Whether the team member removal request completed."),
@@ -414,15 +411,15 @@ function pageOutput(item: JsonSchema, description: string): JsonSchema {
 
 function repositoryInput(): Record<string, JsonSchema> {
   return {
-    namespace: nonEmptyString("The namespace that owns the repository."),
-    repository: nonEmptyString("The repository name."),
+    namespace: s.nonEmptyString("The namespace that owns the repository."),
+    repository: s.nonEmptyString("The repository name."),
   };
 }
 
 function teamInput(): Record<string, JsonSchema> {
   return {
-    orgName: nonEmptyString("The Docker Hub organization name."),
-    teamName: nonEmptyString("The team name."),
+    orgName: s.nonEmptyString("The Docker Hub organization name."),
+    teamName: s.nonEmptyString("The team name."),
   };
 }
 

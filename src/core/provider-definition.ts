@@ -4,8 +4,8 @@ import type { ActionDefinition, JsonSchema } from "./types.ts";
  * Input for defining one provider action without repeating provider-level
  * fields in every action object.
  */
-export type DefineProviderActionInput = {
-  name: string;
+export type DefineProviderActionInput<TName extends string = string> = {
+  name: TName;
   description: string;
   inputSchema: JsonSchema;
   outputSchema: JsonSchema;
@@ -15,13 +15,18 @@ export type DefineProviderActionInput = {
   asyncLifecycle?: ActionDefinition["asyncLifecycle"];
 };
 
+export type ProviderActionDefinition<TName extends string = string> = ActionDefinition & { name: TName };
+
 /**
  * Create a full action definition for one provider.
  *
  * Provider modules use this helper so definitions read as business action
  * declarations instead of generated catalog JSON.
  */
-export function defineProviderAction(service: string, input: DefineProviderActionInput): ActionDefinition {
+export function defineProviderAction<TName extends string>(
+  service: string,
+  input: DefineProviderActionInput<TName>,
+): ProviderActionDefinition<TName> {
   return {
     id: `${service}.${input.name}`,
     service,

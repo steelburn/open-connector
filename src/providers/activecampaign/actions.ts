@@ -6,10 +6,6 @@ import { defineProviderAction } from "../../core/provider-definition.ts";
 const service = "activecampaign";
 
 const rawObjectSchema = s.looseObject({}, { description: "Raw ActiveCampaign object." });
-const nullableBoolean = (description: string) => s.nullable(s.boolean({ description }));
-const positiveInteger = (description: string) => s.integer({ description, minimum: 1 });
-const paginationInteger = (description: string) => s.integer({ description, minimum: 0 });
-const nonEmptyString = (description: string) => s.string({ description, minLength: 1 });
 
 const paginationSchema = s.object(
   {
@@ -47,7 +43,7 @@ const contactSchema = s.object(
     organizationId: s.nullableString("Primary organization identifier, or null when ActiveCampaign omits it."),
     createdAt: s.nullableString("Contact creation timestamp, or null when omitted."),
     updatedAt: s.nullableString("Contact update timestamp, or null when omitted."),
-    deleted: nullableBoolean("Whether the contact is deleted, or null when ActiveCampaign omits it."),
+    deleted: s.nullableBoolean("Whether the contact is deleted, or null when ActiveCampaign omits it."),
     fieldValues: s.array(contactFieldValueSchema, {
       description: "Custom field values returned with the contact when present.",
     }),
@@ -67,7 +63,7 @@ const listSchema = s.object(
     stringId: s.nullableString("URL-safe list identifier, or null when omitted."),
     createdAt: s.nullableString("List creation timestamp, or null when omitted."),
     updatedAt: s.nullableString("List update timestamp, or null when omitted."),
-    private: nullableBoolean("Whether the list is private, or null when ActiveCampaign omits it."),
+    private: s.nullableBoolean("Whether the list is private, or null when ActiveCampaign omits it."),
     senderName: s.nullableString("Sender name, or null when ActiveCampaign omits it."),
     senderUrl: s.nullableString("Sender website URL, or null when omitted."),
     senderReminder: s.nullableString("Sender reminder text, or null when ActiveCampaign omits it."),
@@ -89,9 +85,9 @@ const fieldSchema = s.object(
     personalizationTag: s.nullableString("Personalization tag for the field, or null when omitted."),
     createdAt: s.nullableString("Field creation timestamp, or null when omitted."),
     updatedAt: s.nullableString("Field update timestamp, or null when omitted."),
-    visible: nullableBoolean("Whether the field is visible, or null when ActiveCampaign omits it."),
-    required: nullableBoolean("Whether the field is required, or null when ActiveCampaign omits it."),
-    showInList: nullableBoolean("Whether the field is shown in lists, or null when omitted."),
+    visible: s.nullableBoolean("Whether the field is visible, or null when ActiveCampaign omits it."),
+    required: s.nullableBoolean("Whether the field is required, or null when ActiveCampaign omits it."),
+    showInList: s.nullableBoolean("Whether the field is shown in lists, or null when omitted."),
     options: s.array(rawObjectSchema, { description: "Options returned for dropdown-like fields." }),
     raw: rawObjectSchema,
   },
@@ -127,7 +123,7 @@ const sortDirectionField = s.stringEnum(["asc", "desc"], {
 
 const fieldValueInputSchema = s.object(
   {
-    field: nonEmptyString("Custom field identifier."),
+    field: s.nonEmptyString("Custom field identifier."),
     value: s.string({ description: "Custom field value." }),
   },
   {
@@ -159,14 +155,14 @@ export const activecampaignActions: ActionDefinition[] = [
     inputSchema: s.object(
       {
         limit: s.integer({ description: "Maximum number of contacts to return.", minimum: 1, maximum: 100 }),
-        offset: paginationInteger("Offset for retrieving the next ActiveCampaign page."),
-        search: nonEmptyString("Free-text search applied to contact names, email, phone, or organization."),
-        emailLike: nonEmptyString("Substring filter applied to the contact email address."),
-        listId: nonEmptyString("Only return contacts associated with this list identifier."),
-        tagId: positiveInteger("Only return contacts associated with this tag identifier."),
-        segmentId: positiveInteger("Only return contacts that match this ActiveCampaign segment."),
-        idGreater: positiveInteger("Only return contacts with an ID greater than this value."),
-        idLess: positiveInteger("Only return contacts with an ID less than this value."),
+        offset: s.nonNegativeInteger("Offset for retrieving the next ActiveCampaign page."),
+        search: s.nonEmptyString("Free-text search applied to contact names, email, phone, or organization."),
+        emailLike: s.nonEmptyString("Substring filter applied to the contact email address."),
+        listId: s.nonEmptyString("Only return contacts associated with this list identifier."),
+        tagId: s.positiveInteger("Only return contacts associated with this tag identifier."),
+        segmentId: s.positiveInteger("Only return contacts that match this ActiveCampaign segment."),
+        idGreater: s.positiveInteger("Only return contacts with an ID greater than this value."),
+        idLess: s.positiveInteger("Only return contacts with an ID less than this value."),
         createdAfter: s.string({ description: "Only return contacts created after this date.", format: "date" }),
         createdBefore: s.string({ description: "Only return contacts created before this date.", format: "date" }),
         updatedAfter: s.string({ description: "Only return contacts updated after this date.", format: "date" }),
@@ -189,7 +185,7 @@ export const activecampaignActions: ActionDefinition[] = [
     description: "Get one ActiveCampaign contact by identifier.",
     inputSchema: s.object(
       {
-        contactId: nonEmptyString("ActiveCampaign contact identifier."),
+        contactId: s.nonEmptyString("ActiveCampaign contact identifier."),
       },
       { required: ["contactId"], description: "Input parameters for retrieving a single ActiveCampaign contact." },
     ),
@@ -206,9 +202,9 @@ export const activecampaignActions: ActionDefinition[] = [
     inputSchema: s.object(
       {
         email: s.email("Contact email address used as the sync key."),
-        firstName: nonEmptyString("Contact first name to create or update."),
-        lastName: nonEmptyString("Contact last name to create or update."),
-        phone: nonEmptyString("Contact phone number to create or update."),
+        firstName: s.nonEmptyString("Contact first name to create or update."),
+        lastName: s.nonEmptyString("Contact last name to create or update."),
+        phone: s.nonEmptyString("Contact phone number to create or update."),
         fieldValues: fieldValuesInputSchema,
       },
       {
@@ -229,8 +225,8 @@ export const activecampaignActions: ActionDefinition[] = [
     inputSchema: s.object(
       {
         limit: s.integer({ description: "Maximum number of lists to return.", minimum: 1, maximum: 100 }),
-        offset: paginationInteger("Offset for retrieving the next ActiveCampaign page."),
-        name: nonEmptyString("Substring filter applied to the ActiveCampaign list name."),
+        offset: s.nonNegativeInteger("Offset for retrieving the next ActiveCampaign page."),
+        name: s.nonEmptyString("Substring filter applied to the ActiveCampaign list name."),
       },
       { description: "Query parameters for listing ActiveCampaign mailing lists." },
     ),
@@ -248,7 +244,7 @@ export const activecampaignActions: ActionDefinition[] = [
     inputSchema: s.object(
       {
         limit: s.integer({ description: "Maximum number of custom fields to return.", minimum: 1, maximum: 100 }),
-        offset: paginationInteger("Offset for retrieving the next ActiveCampaign custom fields page."),
+        offset: s.nonNegativeInteger("Offset for retrieving the next ActiveCampaign custom fields page."),
       },
       { description: "Query parameters for listing ActiveCampaign custom fields." },
     ),
