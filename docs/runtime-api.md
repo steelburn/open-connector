@@ -120,6 +120,7 @@ under `OOMOL_CONNECT_DATA_DIR/files` and are cleaned up by age.
 - `GET /v1/health`
 - `GET /v1/providers`
 - `GET /v1/actions`
+- `GET /v1/actions/search`
 - `GET /v1/actions?service=<service>`
 - `GET /v1/actions/:actionId`
 - `POST /v1/actions/:actionId`
@@ -138,6 +139,7 @@ These endpoints power the Web Console, examples, and setup scripts:
 - `GET /api/providers`
 - `GET /api/providers/:service`
 - `GET /api/actions`
+- `GET /api/actions/search`
 - `GET /api/actions/:actionId`
 - `GET /api/actions/:actionId/agent.md`
 - `POST /api/files`
@@ -150,7 +152,7 @@ These endpoints power the Web Console, examples, and setup scripts:
 - `PUT /api/oauth/configs/:service`
 - `DELETE /api/oauth/configs/:service`
 - `POST /api/oauth/authorizations`
-- `GET /oauth/callback/:service`
+- `GET /oauth/callback`
 - `GET /api/runtime-tokens`
 - `POST /api/runtime-tokens`
 - `DELETE /api/runtime-tokens/:id`

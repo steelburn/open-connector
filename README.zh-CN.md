@@ -61,13 +61,12 @@ flowchart LR
 Agent 可以发现 Action、查看 schema 和 scope、选择 connection alias，并通过网关执行调用。Provider
 secret 保留在运行时边界内；Agent 只拿到所需的 metadata、安全账号标签和执行结果。
 
-## 部署和产品路径
+## 部署路径
 
-| 路径                | 适合谁                                | 提供什么                                                                   |
-| ------------------- | ------------------------------------- | -------------------------------------------------------------------------- |
-| OSS Self-host       | 想完全掌控基础设施的开发者和团队      | 本地 Docker 或 Node runtime、SQLite 存储、MCP、HTTP、OpenAPI 和 Web 控制台 |
-| Cloudflare 兼容部署 | 想快速拥有轻量托管运行时的团队        | Workers runtime、D1 状态存储、R2 文件中转和控制台 Static Assets            |
-| 公有云版            | 被 OAuth 申请周期或上线时间卡住的团队 | 托管鉴权和运行时路径，并保留后续迁移到自托管部署的空间                     |
+| 路径                | 适合谁                           | 提供什么                                                                   |
+| ------------------- | -------------------------------- | -------------------------------------------------------------------------- |
+| OSS Self-host       | 想完全掌控基础设施的开发者和团队 | 本地 Docker 或 Node runtime、SQLite 存储、MCP、HTTP、OpenAPI 和 Web 控制台 |
+| Cloudflare 兼容部署 | 想快速拥有轻量托管运行时的团队   | Workers runtime、D1 状态存储、R2 文件中转和控制台 Static Assets            |
 
 ## Cloudflare 快速启动视频
 
@@ -141,13 +140,6 @@ D1、R2 和 Static Assets。
 
 Cloudflare 资源创建、migration、secret、本地 Worker preview 和远程部署步骤见
 [docs/cloudflare.md](docs/cloudflare.md)。
-
-## 团队使用
-
-OpenConnector 是面向自托管和可控运行时的开源网关。
-
-如果团队希望直接使用桌面端 Agent，而不是自己维护网关，可以使用 [Wanta](https://wanta.ai/)。Wanta
-采用同一类应用连接思路，并额外提供团队应用共享、权限控制、多账号连接、按 workspace 隔离连接等能力。
 
 ## 文档
 

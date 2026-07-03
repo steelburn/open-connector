@@ -70,11 +70,10 @@ safe account labels, and execution results they need.
 
 ## Deployment Paths
 
-| Path                         | Best for                                            | What you get                                                                      |
-| ---------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
-| OSS self-host                | Developers and teams that want full control         | Local Docker or Node runtime, SQLite storage, MCP, HTTP, OpenAPI, and Web Console |
-| Cloudflare-compatible deploy | Teams that want a lightweight hosted runtime        | Workers runtime, D1 state, R2 transit files, and Static Assets for the console    |
-| Managed cloud                | Teams blocked by OAuth approval or launch deadlines | Hosted auth and runtime path with migration back to self-hosted deployments       |
+| Path                         | Best for                                     | What you get                                                                      |
+| ---------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------- |
+| OSS self-host                | Developers and teams that want full control  | Local Docker or Node runtime, SQLite storage, MCP, HTTP, OpenAPI, and Web Console |
+| Cloudflare-compatible deploy | Teams that want a lightweight hosted runtime | Workers runtime, D1 state, R2 transit files, and Static Assets for the console    |
 
 ## Cloudflare Quick Start Video
 
@@ -149,14 +148,6 @@ Workers, D1, R2, and Static Assets.
 
 See [docs/cloudflare.md](docs/cloudflare.md) for resource creation, migrations, secrets, local Worker
 preview, and remote deployment.
-
-## Team Option
-
-OpenConnector is the open-source gateway for teams that want to self-host and control the runtime.
-
-For teams that prefer a ready-to-use desktop agent, [Wanta](https://wanta.ai/) uses the same
-app-connection direction and adds team features such as shared app access, permission control,
-multiple connected accounts, and workspace-specific connections.
 
 ## Documentation
 

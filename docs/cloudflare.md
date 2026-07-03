@@ -45,6 +45,18 @@ npm run generate:catalog
 npm run build:web
 ```
 
+Make sure your Wrangler config maps the built Web Console assets to the `ASSETS` binding before
+starting a Worker preview or deploying. `wrangler.example.jsonc` already includes the required
+Static Assets configuration:
+
+```jsonc
+"assets": {
+  "directory": "dist/web",
+  "binding": "ASSETS",
+  "not_found_handling": "single-page-application"
+}
+```
+
 ## Local Worker Preview
 
 Apply migrations locally and start a Worker preview:
